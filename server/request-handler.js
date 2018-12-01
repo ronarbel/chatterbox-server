@@ -28,17 +28,23 @@ var requestHandler = function(request, response) {
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
-  var statusCode;
+  var statusCode = 404;
   // The outgoing status.
-  if(request.method === 'GET'){
-    statusCode = 200;
-    var endResponse = {  
-      results : messages 
+  if(request.url === '/classes/messages'){
+    
+    if (request.method === 'GET') {
+      
+      statusCode = 200;
+      var endResponse = {  
+        results : messages 
+      }
+    } else if (request.method === 'POST') {
+      statusCode = 201;
+      messages.push(request._postData)
+      var endResponse = 'Successful POST'
     }
-  }else if( request.method === 'POST'){
-    statusCode = 201;
-    messages.push(request._postData)
-  }
+  } 
+
 
 
 
