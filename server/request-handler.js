@@ -11,8 +11,9 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-var messages = []
-var requestHandler = function(request, response) {
+var result = [];
+var requestHandler = function (request, response) {
+
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -29,21 +30,8 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   var statusCode = 404;
+  var endResponse
   // The outgoing status.
-  if(request.url === '/classes/messages'){
-    
-    if (request.method === 'GET') {
-      
-      statusCode = 200;
-      var endResponse = {  
-        results : messages 
-      }
-    } else if (request.method === 'POST') {
-      statusCode = 201;
-      messages.push(request._postData)
-      var endResponse = 'Successful POST'
-    }
-  } 
 
 
 
@@ -59,10 +47,26 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
+
+
+  if (request.url === '/classes/messages') {
+
+    if (request.method === 'GET') {
+      statusCode = 200;
+      endResponse = {
+        results: result
+      };
+    } else if (request.method === 'POST') {
+      statusCode = 201;
+      request.on('data', (chunk) => {
+        result.push(JSON.parse(chunk))
+      })
+      endResponse = 'End!'
+    }
+  }
+
   response.writeHead(statusCode, headers);
 
-
-  
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
