@@ -19,7 +19,13 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-var result = [];
+
+var endResponse = {
+  results: [{
+    username: 'Jono',
+    text: 'Do my bidding!'
+  }]
+};
 var requestHandler = function (request, response) {
 
   // Request and Response come from node's http module.
@@ -38,12 +44,9 @@ var requestHandler = function (request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   var statusCode;
-  var endResponse = 'hi';
   // The outgoing status.
 
-  if (request.url != '/classes/messages'){
-    statusCode = 404;
-  }
+  
 
 
   // See the note below about CORS headers.
@@ -58,28 +61,28 @@ var requestHandler = function (request, response) {
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
 
-
+  if (request.url != '/classes/messages'){
+    response.writeHead(404)
+      response.end()
+  }
   if (request.url === '/classes/messages') {
     if(request.method === 'OPTIONS'){
       response.writeHead(200, headers)
       response.end()
     }
     if (request.method === 'GET') {
-      response.writeHead(200, headers)
-      endResponse = {
-        results: result
-      };
+      
+      response.writeHead(200, headers);
       response.end(JSON.stringify(endResponse));
     } 
     if (request.method === 'POST') {
-      response.writeHead(201, headers)
-
-      var completeMessage;
+      response.writeHead(201, headers);
+      var completeMessage = '';
       request.on('data', (chunk) => {
         completeMessage += chunk;
       }).on('end', () => {
-        result.push(JSON.parse(completeMessage));
-        response.end(result);
+        endResponse.results.unshift(JSON.parse(completeMessage));
+        response.end(JSON.stringify(endResponse));
       })
     }
   }
